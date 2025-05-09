@@ -32,6 +32,12 @@ $product = $block->getProduct();
             <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
         </label>
         <div class="control">
+            <div class="field qty">
+                <label class="label" for="qty"><span>Qty</span></label>
+                <div class="control">
+                    <input type="number" name="qty" id="qty" min="0" value="1" title="Qty" class="input-text qty" data-validate="{&quot;required-number&quot;:true,&quot;validate-item-quantity&quot;:{&quot;maxAllowed&quot;:10000}}">
+                </div>
+            </div>
             <?php if ($product->getTypeId() === Configurable::TYPE_CODE): ?>
                 <?php $productId = $product->getId(); ?>
                 <input type="hidden"
@@ -51,7 +57,7 @@ $product = $block->getProduct();
                                 "jsonSwatchConfig": <?= /* @noEscape */ $block->getJsonSwatchConfig(); ?>,
                                 "mediaCallback": "<?= $escaper->escapeJs($escaper->escapeUrl($block->getMediaCallback())); ?>",
                                 "jsonSwatchImageSizeConfig": <?= /* @noEscape */ $block->getJsonSwatchSizeConfig(); ?>,
-                                "showTooltip": <?= $escaper->escapeJs($block->getShowSwatchTooltip()); ?>
+                                "showTooltip": false
                             }
                         }
                     }
@@ -90,12 +96,6 @@ $product = $block->getProduct();
                     <span id="options-<?= $escaper->escapeHtmlAttr($option->getId()); ?>-container"></span>
                 <?php endif; ?>
             <?php endif; ?>
-            <div class="field qty">
-                <label class="label" for="qty"><span>Qty</span></label>
-                <div class="control">
-                    <input type="number" name="qty" id="qty" min="0" value="1" title="Qty" class="input-text qty" data-validate="{&quot;required-number&quot;:true,&quot;validate-item-quantity&quot;:{&quot;maxAllowed&quot;:10000}}">
-                </div>
-            </div>
         </div>
     </div>
 <?php endif; ?>
