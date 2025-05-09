@@ -1,0 +1,101 @@
+<?php
+
+declare(strict_types=1);
+
+use Infrangible\CatalogProductOptionProduct\Block\Product\View\Options\Type\Product;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Framework\Escaper;
+
+/**
+ * @author      Andreas Knollmann
+ * @copyright   Copyright (c) 2014-2025 Softwareentwicklung Andreas Knollmann
+ * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ */
+
+/** @var Product $block */
+/** @var Escaper $escaper */
+?>
+
+<?php
+$option = $block->getOption();
+$configValue = $block->getPreconfiguredValue($option);
+$checked = is_array($configValue) && in_array($option->getId(), $configValue) ? 'checked' : '';
+$class = $option->getIsRequire() ? ' required' : '';
+$dataSelector = 'options[' . $option->getId() . ']';
+$price = $option->getPrice();
+$product = $block->getProduct();
+?>
+
+<?php if ($product && $product->getId()): ?>
+    <div class="field<?= /* @noEscape */ $class ?>">
+        <label class="label" for="select_<?= $escaper->escapeHtmlAttr($option->getId()); ?>">
+            <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
+        </label>
+        <div class="control">
+            <?php if ($product->getTypeId() === Configurable::TYPE_CODE): ?>
+                <?php $productId = $product->getId(); ?>
+                <input type="hidden"
+                       name="options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
+                       id="options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
+                       value="<?= $checked ? $escaper->escapeHtmlAttr($option->getData('option_product_id')) : 0 ?>">
+                <div class="swatch-opt-<?= $escaper->escapeHtmlAttr($productId); ?>" data-role="swatch-option-<?= $escaper->escapeHtmlAttr($productId); ?>"></div>
+                <script type="text/x-magento-init">
+                    {
+                        "[data-role=swatch-option-<?= $escaper->escapeJs($productId) ?>]": {
+                            "Magento_Swatches/js/swatch-renderer": {
+                                "selectorProduct": ".product-item-details",
+                                "onlySwatches": true,
+                                "enableControlLabel": false,
+                                "numberToShow": <?=  $escaper->escapeJs($block->getNumberSwatchesPerProduct()); ?>,
+                                "jsonConfig": <?= /* @noEscape */ $block->getJsonConfig(); ?>,
+                                "jsonSwatchConfig": <?= /* @noEscape */ $block->getJsonSwatchConfig(); ?>,
+                                "mediaCallback": "<?= $escaper->escapeJs($escaper->escapeUrl($block->getMediaCallback())); ?>",
+                                "jsonSwatchImageSizeConfig": <?= /* @noEscape */ $block->getJsonSwatchSizeConfig(); ?>,
+                                "showTooltip": <?= $escaper->escapeJs($block->getShowSwatchTooltip()); ?>
+                            }
+                        }
+                    }
+                </script>
+            <?php else: ?>
+                <div class="field choice admin__field admin__field-option">
+                    <input type="hidden"
+                           name="options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
+                           id="options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
+                           value="<?= $checked ? $escaper->escapeHtmlAttr($option->getData('option_product_id')) : 0 ?>">
+                    <input type="checkbox"
+                           class="checkbox admin__control-checkbox <?= $option->getIsRequire() ? 'required': ''; ?> product-custom-option"
+                           name="checkbox_options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
+                           id="checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
+                           value="<?= $escaper->escapeHtmlAttr($option->getData('option_product_id')); ?>"
+                        <?= $checked; ?>
+                           data-selector="<?= $escaper->escapeHtmlAttr($dataSelector); ?>"
+                           price="<?= $escaper->escapeHtmlAttr($block->getCurrencyByStore($price)); ?>"
+                    />
+                    <label class="label admin__field-label"
+                           for="checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>">
+                        <span>
+                            <?= $escaper->escapeHtml($product->getName()); ?>
+                        </span>
+                        <?= /* @noEscape */ $block->formatPrice($price); ?>
+                    </label>
+                    <script type="text/javascript">
+                        require(['jquery', 'domReady!'], function($) {
+                            $("#checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>").click(function() {
+                                $("#options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>").val($(this).is(':checked') ? 1 : 0);
+                            });
+                        });
+                    </script>
+                </div>
+                <?php if ($option->getIsRequire()): ?>
+                    <span id="options-<?= $escaper->escapeHtmlAttr($option->getId()); ?>-container"></span>
+                <?php endif; ?>
+            <?php endif; ?>
+            <div class="field qty">
+                <label class="label" for="qty"><span>Qty</span></label>
+                <div class="control">
+                    <input type="number" name="qty" id="qty" min="0" value="1" title="Qty" class="input-text qty" data-validate="{&quot;required-number&quot;:true,&quot;validate-item-quantity&quot;:{&quot;maxAllowed&quot;:10000}}">
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
