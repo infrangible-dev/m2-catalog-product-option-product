@@ -51,7 +51,7 @@ $product = $block->getProduct();
                             "Magento_Swatches/js/swatch-renderer": {
                                 "selectorProduct": ".product-item-details",
                                 "onlySwatches": true,
-                                "enableControlLabel": false,
+                                "enableControlLabel": true,
                                 "numberToShow": <?=  $escaper->escapeJs($block->getNumberSwatchesPerProduct()); ?>,
                                 "jsonConfig": <?= /* @noEscape */ $block->getJsonConfig(); ?>,
                                 "jsonSwatchConfig": <?= /* @noEscape */ $block->getJsonSwatchConfig(); ?>,
