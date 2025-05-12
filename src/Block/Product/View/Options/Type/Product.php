@@ -546,9 +546,9 @@ class Product extends AbstractOptions
 
     public function getShowSwatchTooltip(): bool
     {
-        return $this->storeHelper->getStoreConfigFlag(
+        return boolval($this->storeHelper->getStoreConfigFlag(
             'catalog/frontend/show_swatch_tooltip',
             true
-        );
+        ));
     }
 }

@@ -32,12 +32,6 @@ $product = $block->getProduct();
             <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
         </label>
         <div class="control">
-            <div class="field qty">
-                <label class="label" for="qty"><span>Qty</span></label>
-                <div class="control">
-                    <input type="number" name="qty" id="qty" min="0" value="1" title="Qty" class="input-text qty" data-validate="{&quot;required-number&quot;:true,&quot;validate-item-quantity&quot;:{&quot;maxAllowed&quot;:10000}}">
-                </div>
-            </div>
             <?php if ($product->getTypeId() === Configurable::TYPE_CODE): ?>
                 <?php $productId = $product->getId(); ?>
                 <input type="hidden"
@@ -48,7 +42,7 @@ $product = $block->getProduct();
                 <script type="text/x-magento-init">
                     {
                         "[data-role=swatch-option-<?= $escaper->escapeJs($productId) ?>]": {
-                            "Magento_Swatches/js/swatch-renderer": {
+                            "productOptionSwatches": {
                                 "selectorProduct": ".product-item-details",
                                 "onlySwatches": true,
                                 "enableControlLabel": true,
@@ -57,7 +51,7 @@ $product = $block->getProduct();
                                 "jsonSwatchConfig": <?= /* @noEscape */ $block->getJsonSwatchConfig(); ?>,
                                 "mediaCallback": "<?= $escaper->escapeJs($escaper->escapeUrl($block->getMediaCallback())); ?>",
                                 "jsonSwatchImageSizeConfig": <?= /* @noEscape */ $block->getJsonSwatchSizeConfig(); ?>,
-                                "showTooltip": false
+                                "showTooltip": <?= /* @noEscape */ $block->getShowSwatchTooltip(); ?>
                             }
                         }
                     }
