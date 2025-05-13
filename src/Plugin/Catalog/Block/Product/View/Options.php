@@ -6,7 +6,10 @@ namespace Infrangible\CatalogProductOptionProduct\Plugin\Catalog\Block\Product\V
 
 use FeWeDev\Base\Arrays;
 use FeWeDev\Base\Json;
+use Infrangible\CatalogProductOptionProduct\Helper\Data;
+use Infrangible\Core\Helper\Product;
 use Magento\Catalog\Model\Product\Option;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 /**
  * @author      Andreas Knollmann
@@ -21,12 +24,18 @@ class Options
     /** @var Arrays */
     protected $arrays;
 
-    public function __construct(
-        Arrays $arrays,
-        Json $json
-    ) {
+    /** @var Data */
+    protected $helper;
+
+    /** @var Product */
+    protected $productHelper;
+
+    public function __construct(Arrays $arrays, Json $json, Data $helper, Product $productHelper)
+    {
         $this->arrays = $arrays;
         $this->json = $json;
+        $this->helper = $helper;
+        $this->productHelper = $productHelper;
     }
 
     public function afterGetJsonConfig(\Magento\Catalog\Block\Product\View\Options $subject, string $config): string
@@ -44,9 +53,22 @@ class Options
                     []
                 );
 
-                unset($config[ $optionId ]);
+                try {
+                    $product = $this->helper->getOptionProduct($option);
 
-                $config[ $optionId ][ $option->getData('option_product_id') ] = $priceConfiguration;
+                    unset($config[ $optionId ]);
+
+                    $config[ $optionId ][ $product->getId() ] = $priceConfiguration;
+
+                    if ($product->getTypeId() === Configurable::TYPE_CODE) {
+                        foreach ($this->productHelper->getUsedProductsPrices($product) as $usedProductId =>
+                            $usedProductsPrices) {
+
+                            $config[ $optionId ][ $usedProductId ][ 'prices' ] = $usedProductsPrices;
+                        }
+                    }
+                } catch (\Exception $exception) {
+                }
             }
         }
 

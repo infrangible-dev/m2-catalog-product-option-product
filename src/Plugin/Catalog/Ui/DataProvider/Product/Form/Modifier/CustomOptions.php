@@ -18,6 +18,8 @@ class CustomOptions
 {
     public const FIELD_OPTION_PRODUCT_ID_NAME = 'option_product_id';
 
+    public const FIELD_OPTION_PRODUCT_CODE_ATTRIBUTE_NAME = 'option_product_code_attribute';
+
     /** @var Arrays */
     protected $arrays;
 
@@ -49,6 +51,24 @@ class CustomOptions
                 self::FIELD_OPTION_PRODUCT_ID_NAME
             ],
             $this->getProductIdFieldConfig(110)
+        );
+
+        $meta = $this->arrays->addDeepValue(
+            $meta,
+            [
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GROUP_CUSTOM_OPTIONS_NAME,
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GRID_OPTIONS_NAME,
+                'children',
+                'record',
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_OPTION,
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_TYPE_STATIC_NAME,
+                'children',
+                self::FIELD_OPTION_PRODUCT_CODE_ATTRIBUTE_NAME
+            ],
+            $this->getProductCodeAttributeFieldConfig(111)
         );
 
         return $this->arrays->addDeepValue(
@@ -97,6 +117,24 @@ class CustomOptions
                     ],
                 ],
             ],
+        ];
+    }
+
+    protected function getProductCodeAttributeFieldConfig(int $sortOrder): array
+    {
+        return [
+            'arguments' => [
+                'data' => [
+                    'config' => [
+                        'label'         => __('Product Code'),
+                        'componentType' => Field::NAME,
+                        'formElement'   => Input::NAME,
+                        'dataScope'     => static::FIELD_OPTION_PRODUCT_CODE_ATTRIBUTE_NAME,
+                        'dataType'      => Text::NAME,
+                        'sortOrder'     => $sortOrder
+                    ]
+                ]
+            ]
         ];
     }
 }

@@ -7,6 +7,7 @@ namespace Infrangible\CatalogProductOptionProduct\Model\Product\Option\Type;
 use Infrangible\CatalogProductOptionProduct\Helper\Data;
 use Magento\Catalog\Model\Product\Option\Type\DefaultType;
 use Magento\Checkout\Model\Session;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 
@@ -20,10 +21,14 @@ class Product extends DefaultType
     /** @var Data */
     protected $helper;
 
+    /** @var \Infrangible\Core\Helper\Product */
+    protected $productHelper;
+
     public function __construct(
         Session $checkoutSession,
         ScopeConfigInterface $scopeConfig,
         Data $helper,
+        \Infrangible\Core\Helper\Product $productHelper,
         array $data = []
     ) {
         parent::__construct(
@@ -33,6 +38,28 @@ class Product extends DefaultType
         );
 
         $this->helper = $helper;
+        $this->productHelper = $productHelper;
+    }
+
+    /**
+     * @throws LocalizedException
+     * @throws \Exception
+     */
+    public function getOptionPrice($optionValue, $basePrice): float
+    {
+        $option = $this->getOption();
+
+        $product = $this->helper->getOptionProduct($option);
+
+        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+            foreach ($this->productHelper->getUsedProducts($product) as $usedProduct) {
+                if ($usedProduct->getId() == $optionValue) {
+                    return $usedProduct->getFinalPrice();
+                }
+            }
+        }
+
+        return $this->helper->getOptionPrice($option);
     }
 
     /**
@@ -61,6 +88,15 @@ class Product extends DefaultType
 
         $product = $this->helper->getOptionProduct($option);
 
+        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+            foreach ($this->productHelper->getUsedProducts($product) as $usedProduct) {
+                if ($usedProduct->getId() == $optionValue) {
+                    $product = $usedProduct;
+                    break;
+                }
+            }
+        }
+
         return $product ? $product->getName() : $option->getTitle();
     }
 
@@ -73,6 +109,15 @@ class Product extends DefaultType
         $option = $this->getOption();
 
         $product = $this->helper->getOptionProduct($option);
+
+        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+            foreach ($this->productHelper->getUsedProducts($product) as $usedProduct) {
+                if ($usedProduct->getId() == $optionValue) {
+                    $product = $usedProduct;
+                    break;
+                }
+            }
+        }
 
         return $product ? $product->getName() : $option->getTitle();
     }

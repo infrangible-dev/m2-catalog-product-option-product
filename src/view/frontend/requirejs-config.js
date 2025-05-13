@@ -9,5 +9,12 @@ var config = {
         '*': {
             productOptionSwatches: 'Infrangible_CatalogProductOptionProduct/js/swatch-renderer',
         }
+    },
+    config: {
+        mixins: {
+            'Magento_Catalog/js/catalog-add-to-cart': {
+                'Infrangible_CatalogProductOptionProduct/js/catalog-add-to-cart-mixin': true
+            }
+        }
     }
 };

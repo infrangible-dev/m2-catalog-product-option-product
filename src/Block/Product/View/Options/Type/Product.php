@@ -6,17 +6,13 @@ namespace Infrangible\CatalogProductOptionProduct\Block\Product\View\Options\Typ
 
 use FeWeDev\Base\Json;
 use Infrangible\Core\Helper\Stores;
-use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Block\Product\View\Options\AbstractOptions;
-use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Image\UrlBuilder;
 use Magento\Catalog\Model\Product\Option;
 use Magento\Catalog\Pricing\Price\CalculateCustomOptionCatalogRule;
-use Magento\Catalog\Pricing\Price\TierPrice;
 use Magento\ConfigurableProduct\Model\ConfigurableAttributeData;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable\Attribute;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable\Variations\Prices;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Format;
@@ -24,6 +20,7 @@ use Magento\Framework\Pricing\Adjustment\CalculatorInterface;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
 use Magento\Swatches\Block\Product\Renderer\Configurable;
 use Magento\Swatches\Helper\Media;
 use Magento\Swatches\Model\Swatch;
@@ -65,14 +62,8 @@ class Product extends AbstractOptions
     /** @var UrlBuilder */
     protected $imageUrlBuilder;
 
-    /** @var \Magento\Tax\Helper\Data */
-    protected $taxHelper;
-
-    /** @var PriceCurrencyInterface */
-    protected $priceCurrency;
-
-    /** @var array */
-    private $allowedProducts;
+    /** @var \Infrangible\Core\Helper\Product */
+    protected $productHelper;
 
     public function __construct(
         Context $context,
@@ -88,7 +79,7 @@ class Product extends AbstractOptions
         Format $localeFormat,
         Prices $variationPrices,
         UrlBuilder $urlBuilder,
-        \Magento\Tax\Helper\Data $taxHelper,
+        \Infrangible\Core\Helper\Product $productHelper,
         array $data = [],
         CalculateCustomOptionCatalogRule $calculateCustomOptionCatalogRule = null,
         CalculatorInterface $calculator = null,
@@ -114,9 +105,7 @@ class Product extends AbstractOptions
         $this->localeFormat = $localeFormat;
         $this->variationPrices = $variationPrices;
         $this->imageUrlBuilder = $urlBuilder;
-        $this->taxHelper = $taxHelper;
-
-        $this->priceCurrency = $priceCurrency ?? ObjectManager::getInstance()->get(PriceCurrencyInterface::class);
+        $this->productHelper = $productHelper;
     }
 
     public function getPreconfiguredValue(Option $option)
@@ -171,7 +160,7 @@ class Product extends AbstractOptions
 
         $options = $this->configurableHelper->getOptions(
             $currentProduct,
-            $this->getAllowProducts()
+            $this->productHelper->getUsedProducts($currentProduct)
         );
 
         $attributesData = $this->configurableAttributeData->getAttributesData(
@@ -188,7 +177,7 @@ class Product extends AbstractOptions
                     $store->getCurrentCurrency()->getOutputFormat()
                 ),
                 'currencyFormat'                 => $store->getCurrentCurrency()->getOutputFormat(),
-                'optionPrices'                   => $this->getOptionPrices(),
+                'optionPrices'                   => $this->productHelper->getUsedProductsPrices($currentProduct),
                 'priceFormat'                    => $this->localeFormat->getPriceFormat(),
                 'prices'                         => $this->variationPrices->getFormattedPrices(
                     $this->getProduct()->getPriceInfo()
@@ -198,7 +187,10 @@ class Product extends AbstractOptions
                 'images'                         => $this->getOptionImages(),
                 'index'                          => $options[ 'index' ] ?? [],
                 'salable'                        => $options[ 'salable' ] ?? [],
-                'canDisplayShowOutOfStockStatus' => $options[ 'canDisplayShowOutOfStockStatus' ] ?? false
+                'canDisplayShowOutOfStockStatus' => $options[ 'canDisplayShowOutOfStockStatus' ] ?? false,
+                'channel'                        => SalesChannelInterface::TYPE_WEBSITE,
+                'salesChannelCode'               => $this->storeHelper->getWebsite()->getCode(),
+                'sku'                            => $this->productHelper->getUsedProductsSkus($currentProduct)
             ];
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
@@ -223,7 +215,7 @@ class Product extends AbstractOptions
     {
         $ids = [];
 
-        foreach ($this->getAllowProducts() as $product) {
+        foreach ($this->productHelper->getUsedProducts($this->getProduct()) as $product) {
             /** @var Attribute $attribute */
             foreach ($this->configurableHelper->getAllowAttributes($this->getProduct()) as $attribute) {
                 $productAttribute = $attribute->getProductAttribute();
@@ -238,108 +230,11 @@ class Product extends AbstractOptions
         return array_keys($ids);
     }
 
-    /**
-     * @return \Magento\Catalog\Model\Product[]
-     */
-    public function getAllowProducts(): array
-    {
-        if ($this->allowedProducts === null) {
-            $products = [];
-
-            /** @var \Magento\ConfigurableProduct\Model\Product\Type\Configurable $typeInstance */
-            $typeInstance = $this->getProduct()->getTypeInstance();
-
-            $allProducts = $typeInstance->getUsedProducts($this->getProduct());
-
-            /** @var \Magento\Catalog\Model\Product $product */
-            foreach ($allProducts as $product) {
-                if ((int)$product->getStatus() === Status::STATUS_ENABLED) {
-                    $products[] = $product;
-                }
-            }
-
-            $this->allowedProducts = $products;
-        }
-
-        return $this->allowedProducts;
-    }
-
-    private function getOptionPrices(): array
-    {
-        $prices = [];
-
-        foreach ($this->getAllowProducts() as $product) {
-            $priceInfo = $product->getPriceInfo();
-
-            $prices[ $product->getId() ] = [
-                'baseOldPrice' => [
-                    'amount' => $this->localeFormat->getNumber(
-                        $priceInfo->getPrice('regular_price')->getAmount()->getBaseAmount()
-                    ),
-                ],
-                'oldPrice'     => [
-                    'amount' => $this->localeFormat->getNumber(
-                        $priceInfo->getPrice('regular_price')->getAmount()->getValue()
-                    ),
-                ],
-                'basePrice'    => [
-                    'amount' => $this->localeFormat->getNumber(
-                        $priceInfo->getPrice('final_price')->getAmount()->getBaseAmount()
-                    ),
-                ],
-                'finalPrice'   => [
-                    'amount' => $this->localeFormat->getNumber(
-                        $priceInfo->getPrice('final_price')->getAmount()->getValue()
-                    ),
-                ],
-                'tierPrices'   => $this->getTierPricesByProduct($product),
-                'msrpPrice'    => [
-                    'amount' => $this->localeFormat->getNumber(
-                        $this->priceCurrency->convertAndRound($product->getDataUsingMethod('msrp'))
-                    ),
-                ],
-            ];
-        }
-
-        return $prices;
-    }
-
-    private function getTierPricesByProduct(ProductInterface $product): array
-    {
-        $tierPrices = [];
-
-        /** @var TierPrice $tierPriceModel */
-        $tierPriceModel = $product->getPriceInfo()->getPrice('tier_price');
-
-        foreach ($tierPriceModel->getTierPriceList() as $tierPrice) {
-            $price = $this->taxHelper->displayPriceExcludingTax() ? $tierPrice[ 'price' ]->getBaseAmount() :
-                $tierPrice[ 'price' ]->getValue();
-
-            $tierPriceData = [
-                'qty'        => $this->localeFormat->getNumber($tierPrice[ 'price_qty' ]),
-                'price'      => $this->localeFormat->getNumber($price),
-                'percentage' => $this->localeFormat->getNumber(
-                    $tierPriceModel->getSavePercent($tierPrice[ 'price' ])
-                ),
-            ];
-
-            if ($this->taxHelper->displayBothPrices()) {
-                $tierPriceData[ 'basePrice' ] = $this->localeFormat->getNumber(
-                    $tierPrice[ 'price' ]->getBaseAmount()
-                );
-            }
-
-            $tierPrices[] = $tierPriceData;
-        }
-
-        return $tierPrices;
-    }
-
     private function getOptionImages(): array
     {
         $images = [];
 
-        foreach ($this->getAllowProducts() as $product) {
+        foreach ($this->productHelper->getUsedProducts($this->getProduct()) as $product) {
             $productImages = $this->configurableHelper->getGalleryImages($product) ? : [];
 
             foreach ($productImages as $image) {
@@ -546,9 +441,11 @@ class Product extends AbstractOptions
 
     public function getShowSwatchTooltip(): bool
     {
-        return boolval($this->storeHelper->getStoreConfigFlag(
-            'catalog/frontend/show_swatch_tooltip',
-            true
-        ));
+        return boolval(
+            $this->storeHelper->getStoreConfigFlag(
+                'catalog/frontend/show_swatch_tooltip',
+                true
+            )
+        );
     }
 }

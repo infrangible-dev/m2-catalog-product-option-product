@@ -17,4 +17,7 @@
         </arguments>
         <plugin name="infrangible_catalogproductoptionproduct" type="Infrangible\CatalogProductOptionProduct\Plugin\Catalog\Model\Product\Option"/>
     </type>
+    <type name="Magento\Catalog\Model\Product\Type\AbstractType">
+        <plugin name="infrangible_catalogproductoptionproduct" type="Infrangible\CatalogProductOptionProduct\Plugin\Catalog\Model\Product\Type\AbstractType"/>
+    </type>
 </config>

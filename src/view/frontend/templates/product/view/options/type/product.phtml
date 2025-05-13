@@ -32,12 +32,19 @@ $product = $block->getProduct();
             <span><?= $escaper->escapeHtml($option->getTitle()); ?></span>
         </label>
         <div class="control">
+            <input type="hidden"
+                   name="options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
+                   id="options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
+                   value="<?= $checked ? $escaper->escapeHtmlAttr($option->getData('option_product_id')) : 0 ?>">
             <?php if ($product->getTypeId() === Configurable::TYPE_CODE): ?>
                 <?php $productId = $product->getId(); ?>
-                <input type="hidden"
-                       name="options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
-                       id="options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
-                       value="<?= $checked ? $escaper->escapeHtmlAttr($option->getData('option_product_id')) : 0 ?>">
+                <input type="checkbox"
+                       class="checkbox admin__control-checkbox <?= $option->getIsRequire() ? 'required': ''; ?> product-custom-option product-custom-option-configurable"
+                       name="checkbox_options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
+                       id="checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
+                       value="<?= $escaper->escapeHtmlAttr($option->getData('option_product_id')); ?>"
+                       <?= $checked; ?>
+                />
                 <div class="swatch-opt-<?= $escaper->escapeHtmlAttr($productId); ?>" data-role="swatch-option-<?= $escaper->escapeHtmlAttr($productId); ?>"></div>
                 <script type="text/x-magento-init">
                     {
@@ -58,16 +65,12 @@ $product = $block->getProduct();
                 </script>
             <?php else: ?>
                 <div class="field choice admin__field admin__field-option">
-                    <input type="hidden"
-                           name="options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
-                           id="options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
-                           value="<?= $checked ? $escaper->escapeHtmlAttr($option->getData('option_product_id')) : 0 ?>">
                     <input type="checkbox"
                            class="checkbox admin__control-checkbox <?= $option->getIsRequire() ? 'required': ''; ?> product-custom-option"
                            name="checkbox_options[<?= $escaper->escapeHtmlAttr($option->getId()); ?>]"
                            id="checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>"
                            value="<?= $escaper->escapeHtmlAttr($option->getData('option_product_id')); ?>"
-                        <?= $checked; ?>
+                           <?= $checked; ?>
                            data-selector="<?= $escaper->escapeHtmlAttr($dataSelector); ?>"
                            price="<?= $escaper->escapeHtmlAttr($block->getCurrencyByStore($price)); ?>"
                     />
@@ -78,18 +81,18 @@ $product = $block->getProduct();
                         </span>
                         <?= /* @noEscape */ $block->formatPrice($price); ?>
                     </label>
-                    <script type="text/javascript">
-                        require(['jquery', 'domReady!'], function($) {
-                            $("#checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>").click(function() {
-                                $("#options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>").val($(this).is(':checked') ? 1 : 0);
-                            });
-                        });
-                    </script>
                 </div>
                 <?php if ($option->getIsRequire()): ?>
                     <span id="options-<?= $escaper->escapeHtmlAttr($option->getId()); ?>-container"></span>
                 <?php endif; ?>
             <?php endif; ?>
+            <script type="text/javascript">
+                require(['jquery', 'domReady!'], function($) {
+                    $("#checkbox_options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>").on('change', function() {
+                        $("#options_<?= $escaper->escapeHtmlAttr($option->getId()); ?>").val($(this).is(':checked') ? $(this).val() : 0);
+                    });
+                });
+            </script>
         </div>
     </div>
 <?php endif; ?>
