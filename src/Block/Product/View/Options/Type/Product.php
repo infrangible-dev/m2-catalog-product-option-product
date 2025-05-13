@@ -439,13 +439,11 @@ class Product extends AbstractOptions
         return $this->json->encode($sizeConfig);
     }
 
-    public function getShowSwatchTooltip(): bool
+    public function getShowSwatchTooltip(): int
     {
-        return boolval(
-            $this->storeHelper->getStoreConfigFlag(
-                'catalog/frontend/show_swatch_tooltip',
-                true
-            )
-        );
+        return $this->storeHelper->getStoreConfigFlag(
+            'catalog/frontend/show_swatch_tooltip',
+            true
+        ) ? 1 : 0;
     }
 }
