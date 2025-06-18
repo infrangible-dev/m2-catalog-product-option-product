@@ -51,7 +51,7 @@ $product = $block->getProduct();
                         "[data-role=swatch-option-<?= $escaper->escapeJs($productId) ?>]": {
                             "productOptionSwatches": {
                                 "selectorProduct": ".product-item-details",
-                                "onlySwatches": true,
+                                "onlySwatches": false,
                                 "enableControlLabel": true,
                                 "numberToShow": <?=  $escaper->escapeJs($block->getNumberSwatchesPerProduct()); ?>,
                                 "jsonConfig": <?= /* @noEscape */ $block->getJsonConfig(); ?>,

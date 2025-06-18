@@ -30,10 +30,35 @@ define([
             }
         },
 
-        _UpdatePrice: function () {
+        _RenderControls: function($this, $widget) {
+            this._super($this, $widget);
+
+            var container = this.element;
+
+            $.each(this.options.jsonConfig.attributes, function () {
+                var item = this;
+
+                var attributeElement = container.find('[data-attribute-code="' + item.code + '"]');
+                var attributeAriaAttribute = attributeElement.find('div');
+
+                $(attributeAriaAttribute).attr('aria-required', false);
+            });
         },
 
-        _loadMedia: function () {
+        _RenderFormInput: function($this, $widget) {
+            var formInputElement = this._super($this, $widget);
+
+            var formInput = $(formInputElement);
+            formInput.attr('data-validate', '{required: false}');
+            formInput.attr('aria-required', false);
+
+            return formInput[0].outerHTML;
+        },
+
+        _UpdatePrice: function() {
+        },
+
+        _loadMedia: function() {
         }
     });
 
