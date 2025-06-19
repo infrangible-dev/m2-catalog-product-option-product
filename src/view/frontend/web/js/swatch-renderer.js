@@ -14,34 +14,26 @@ define([
         _OnClick: function ($this, $widget) {
             this._super($this, $widget);
 
-            var fieldWrapper = $this.closest('.field-wrapper');
-            var optionId = fieldWrapper.data('option-id');
-
-            var optionValue = fieldWrapper.find('#checkbox_options_' + optionId);
-            var productId = this.getProductId();
-
-            if (optionValue.val() !== productId) {
-                optionValue.prop('checked', false);
-                optionValue.trigger('change');
-
-                optionValue.val(productId);
-                optionValue.prop('checked', !!productId);
-                optionValue.trigger('change');
-            }
+            this.updateSelection($this);
         },
 
         _RenderControls: function($this, $widget) {
             this._super($this, $widget);
 
+            var self = this;
             var container = this.element;
 
-            $.each(this.options.jsonConfig.attributes, function () {
+            $.each(self.options.jsonConfig.attributes, function () {
                 var item = this;
 
                 var attributeElement = container.find('[data-attribute-code="' + item.code + '"]');
                 var attributeAriaAttribute = attributeElement.find('div');
 
                 $(attributeAriaAttribute).attr('aria-required', false);
+            });
+
+            container.find('select.catalog-product-option-product-attribute').parent().parent().find('.' + self.options.classes.attributeInput).on('change', function() {
+                self.updateSelection($(this));
             });
         },
 
@@ -55,10 +47,42 @@ define([
             return formInput[0].outerHTML;
         },
 
+        _RenderSwatchSelect: function($this, $widget) {
+            var selectHtml = this._super($this, $widget);
+
+            if (selectHtml !== '') {
+                var select = $(selectHtml);
+
+                select.addClass('catalog-product-option-product-attribute');
+
+                selectHtml = select[0].outerHTML;
+            }
+
+            return selectHtml;
+        },
+
         _UpdatePrice: function() {
         },
 
         _loadMedia: function() {
+        },
+
+        updateSelection: function(element) {
+            var fieldWrapper = element.closest('.field-wrapper');
+            var optionId = fieldWrapper.data('option-id');
+
+            var optionValue = fieldWrapper.find('#checkbox_options_' + optionId);
+            var currentProductId = optionValue.val();
+            var productId = this.getProductId();
+
+            if (currentProductId !== productId) {
+                optionValue.prop('checked', false);
+                optionValue.trigger('change');
+
+                optionValue.val(productId);
+                optionValue.prop('checked', !!productId);
+                optionValue.trigger('change');
+            }
         }
     });
 
