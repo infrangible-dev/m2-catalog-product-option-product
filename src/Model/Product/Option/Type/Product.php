@@ -42,24 +42,11 @@ class Product extends DefaultType
     }
 
     /**
-     * @throws LocalizedException
      * @throws \Exception
      */
     public function getOptionPrice($optionValue, $basePrice): float
     {
-        $option = $this->getOption();
-
-        $product = $this->helper->getOptionProduct($option);
-
-        if ($product->getTypeId() === Configurable::TYPE_CODE) {
-            foreach ($this->productHelper->getUsedProducts($product) as $usedProduct) {
-                if ($usedProduct->getId() == $optionValue) {
-                    return $usedProduct->getFinalPrice();
-                }
-            }
-        }
-
-        return $this->helper->getOptionPrice($option);
+        return 0;
     }
 
     /**

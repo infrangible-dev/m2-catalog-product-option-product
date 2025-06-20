@@ -20,4 +20,7 @@
     <type name="Magento\Catalog\Model\Product\Type\AbstractType">
         <plugin name="infrangible_catalogproductoptionproduct" type="Infrangible\CatalogProductOptionProduct\Plugin\Catalog\Model\Product\Type\AbstractType"/>
     </type>
+    <type name="Magento\Quote\Model\Quote\Item">
+        <plugin name="infrangible_catalogproductoptionproduct" type="Infrangible\CatalogProductOptionProduct\Plugin\Quote\Model\Quote\Item"/>
+    </type>
 </config>
