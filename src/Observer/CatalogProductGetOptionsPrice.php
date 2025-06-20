@@ -28,8 +28,11 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
     /** @var ManagerInterface */
     protected $eventManager;
 
-    public function __construct(Data $helper, Product $productHelper, ManagerInterface $eventManager)
-    {
+    public function __construct(
+        Data $helper,
+        \Infrangible\Core\Helper\Product $productHelper,
+        ManagerInterface $eventManager
+    ) {
         $this->helper = $helper;
         $this->productHelper = $productHelper;
         $this->eventManager = $eventManager;
@@ -62,10 +65,14 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
                     if ($product->getTypeId() === Configurable::TYPE_CODE) {
                         $customOption = $product->getCustomOption('option_' . $option->getId());
 
-                        foreach ($this->productHelper->getUsedProducts($product) as $usedProduct) {
-                            if ($usedProduct->getId() == $customOption->getValue()) {
-                                $price = $usedProduct->getFinalPrice();
-                                break;
+                        $usedProducts = $this->productHelper->getUsedProducts($product);
+
+                        if ($usedProducts) {
+                            foreach ($usedProducts as $usedProduct) {
+                                if ($usedProduct->getId() == $customOption->getValue()) {
+                                    $price = $usedProduct->getFinalPrice();
+                                    break;
+                                }
                             }
                         }
                     }
