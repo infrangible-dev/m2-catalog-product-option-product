@@ -28,14 +28,19 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
     /** @var ManagerInterface */
     protected $eventManager;
 
+    /** @var \Magento\Tax\Helper\Data */
+    protected $taxHelper;
+
     public function __construct(
         Data $helper,
         \Infrangible\Core\Helper\Product $productHelper,
-        ManagerInterface $eventManager
+        ManagerInterface $eventManager,
+        \Magento\Tax\Helper\Data $taxHelper
     ) {
         $this->helper = $helper;
         $this->productHelper = $productHelper;
         $this->eventManager = $eventManager;
+        $this->taxHelper = $taxHelper;
     }
 
     /**
@@ -48,7 +53,7 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
 
         /** @var Product $product */
         $product = $transportObject->getData('product');
-        $optionsPrice = $transportObject->getData('options_price');
+        $optionsPriceUnattached = $transportObject->getData('options_price_unattached');
 
         $optionIds = $product->getCustomOption('option_ids');
 
@@ -60,7 +65,10 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
                 $option = $product->getOptionById($optionId);
 
                 if ($option->getType() === 'product') {
-                    $price = $this->helper->getOptionPrice($option);
+                    $price = $this->helper->getOptionPrice(
+                        $option,
+                        $this->taxHelper->priceIncludesTax()
+                    );
 
                     if ($product->getTypeId() === Configurable::TYPE_CODE) {
                         $customOption = $product->getCustomOption('option_' . $option->getId());
@@ -70,7 +78,10 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
                         if ($usedProducts) {
                             foreach ($usedProducts as $usedProduct) {
                                 if ($usedProduct->getId() == $customOption->getValue()) {
-                                    $price = $usedProduct->getFinalPrice();
+                                    $price =
+                                        $usedProduct->getPriceInfo()->getPrice('final_price')->getAmount()->getValue(
+                                            $this->taxHelper->priceIncludesTax() ? [] : ['tax', 'weee_tax']
+                                        );
                                     break;
                                 }
                             }
@@ -94,14 +105,14 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
 
                     $price = $innerTransportObject->getData('price');
 
-                    $optionsPrice += $price;
+                    $optionsPriceUnattached += $price;
                 }
             }
         }
 
         $transportObject->setData(
-            'options_price',
-            $optionsPrice
+            'options_price_unattached',
+            $optionsPriceUnattached
         );
     }
 }

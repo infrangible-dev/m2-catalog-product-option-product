@@ -67,18 +67,24 @@ class Data
     /**
      * @throws \Exception
      */
-    public function getOptionPrice(Option $option, ?float $qty = null): float
+    public function getOptionPrice(Option $option, bool $inclTax = true): float
     {
-        if (! $option->getData(Option::KEY_PRICE)) {
+        if (! $option->getData(Option::KEY_PRICE) || ! $inclTax) {
             $optionPrice = 0;
 
             $product = $this->getOptionProduct($option);
 
             if ($product && $product->getId()) {
-                $optionPrice = $product->getFinalPrice($qty);
+                $optionPrice = $product->getPriceInfo()->getPrice('final_price')->getAmount()->getValue(
+                    $inclTax ? [] : ['tax', 'weee_tax']
+                );
             }
 
-            $option->setPrice(floatval($optionPrice));
+            if ($inclTax) {
+                $option->setPrice(floatval($optionPrice));
+            } else {
+                return $optionPrice;
+            }
         }
 
         return $option->getData(Option::KEY_PRICE);

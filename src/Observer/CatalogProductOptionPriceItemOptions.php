@@ -62,7 +62,7 @@ class CatalogProductOptionPriceItemOptions implements ObserverInterface
 
                 foreach ($this->productHelper->getUsedProducts($product) as $usedProduct) {
                     if ($usedProduct->getId() == $itemOption->getValue()) {
-                        $price = $usedProduct->getFinalPrice();
+                        $price = $usedProduct->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
                         break;
                     }
                 }
@@ -92,6 +92,10 @@ class CatalogProductOptionPriceItemOptions implements ObserverInterface
             $transportObject->setData(
                 'display',
                 true
+            );
+            $transportObject->setData(
+                'attached',
+                false
             );
         }
     }

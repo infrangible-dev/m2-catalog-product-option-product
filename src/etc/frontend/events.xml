@@ -6,9 +6,6 @@
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="catalog_product_get_options_price">
-        <observer name="infrangible_catalogproductoptionproduct" instance="Infrangible\CatalogProductOptionProduct\Observer\CatalogProductGetOptionsPrice"/>
-    </event>
     <event name="catalog_product_option_price_item_options">
         <observer name="infrangible_catalogproductoptionproduct" instance="Infrangible\CatalogProductOptionProduct\Observer\CatalogProductOptionPriceItemOptions"/>
     </event>
