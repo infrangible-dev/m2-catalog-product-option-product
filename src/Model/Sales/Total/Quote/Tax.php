@@ -289,7 +289,7 @@ class Tax extends CommonTaxCollector
                 foreach ($optionIds as $optionId) {
                     $option = $item->getProduct()->getOptionById($optionId);
 
-                    if ($option && $option->getType() === 'product') {
+                    if ($option && $option->getType() === 'product' && $option->getData('option_product_unattached')) {
                         $product = $this->helper->getOptionProduct($option);
 
                         $itemOption = $item->getOptionByCode('option_' . $option->getId());

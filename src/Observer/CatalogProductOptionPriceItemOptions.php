@@ -95,7 +95,7 @@ class CatalogProductOptionPriceItemOptions implements ObserverInterface
             );
             $transportObject->setData(
                 'attached',
-                false
+                $option->getData('option_product_unattached') != 1
             );
         }
     }

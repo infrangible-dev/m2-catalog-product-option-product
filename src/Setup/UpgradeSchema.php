@@ -46,6 +46,32 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
+        if (version_compare(
+            $context->getVersion(),
+            '1.5.0',
+            '<'
+        )) {
+            $catalogProductOptionTableName = $setup->getTable('catalog_product_option');
+
+            if (! $connection->tableColumnExists(
+                $catalogProductOptionTableName,
+                'option_product_unattached'
+            )) {
+                $connection->addColumn(
+                    $catalogProductOptionTableName,
+                    'option_product_unattached',
+                    [
+                        'type'     => Table::TYPE_SMALLINT,
+                        'length'   => 5,
+                        'nullable' => true,
+                        'unsigned' => true,
+                        'default'  => 0,
+                        'comment'  => 'Unattached'
+                    ]
+                );
+            }
+        }
+
         $setup->endSetup();
     }
 }

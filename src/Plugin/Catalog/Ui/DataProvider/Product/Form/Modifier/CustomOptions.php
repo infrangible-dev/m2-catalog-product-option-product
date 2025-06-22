@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrangible\CatalogProductOptionProduct\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier;
 
 use FeWeDev\Base\Arrays;
+use Magento\Ui\Component\Form\Element\Checkbox;
 use Magento\Ui\Component\Form\Element\DataType\Text;
 use Magento\Ui\Component\Form\Element\Input;
 use Magento\Ui\Component\Form\Field;
@@ -19,6 +20,8 @@ class CustomOptions
     public const FIELD_OPTION_PRODUCT_ID_NAME = 'option_product_id';
 
     public const FIELD_OPTION_PRODUCT_CODE_ATTRIBUTE_NAME = 'option_product_code_attribute';
+
+    public const FIELD_OPTION_PRODUCT_UNATTACHED_NAME = 'option_product_unattached';
 
     /** @var Arrays */
     protected $arrays;
@@ -69,6 +72,24 @@ class CustomOptions
                 self::FIELD_OPTION_PRODUCT_CODE_ATTRIBUTE_NAME
             ],
             $this->getProductCodeAttributeFieldConfig(111)
+        );
+
+        $meta = $this->arrays->addDeepValue(
+            $meta,
+            [
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GROUP_CUSTOM_OPTIONS_NAME,
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GRID_OPTIONS_NAME,
+                'children',
+                'record',
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_OPTION,
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_TYPE_STATIC_NAME,
+                'children',
+                static::FIELD_OPTION_PRODUCT_UNATTACHED_NAME
+            ],
+            $this->getUnattachedConfig(112)
         );
 
         return $this->arrays->addDeepValue(
@@ -132,6 +153,29 @@ class CustomOptions
                         'dataScope'     => static::FIELD_OPTION_PRODUCT_CODE_ATTRIBUTE_NAME,
                         'dataType'      => Text::NAME,
                         'sortOrder'     => $sortOrder
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    protected function getUnattachedConfig(int $sortOrder): array
+    {
+        return [
+            'arguments' => [
+                'data' => [
+                    'config' => [
+                        'label'         => __('Unattached'),
+                        'componentType' => Field::NAME,
+                        'formElement'   => Checkbox::NAME,
+                        'dataScope'     => static::FIELD_OPTION_PRODUCT_UNATTACHED_NAME,
+                        'dataType'      => Text::NAME,
+                        'sortOrder'     => $sortOrder,
+                        'value'         => '0',
+                        'valueMap'      => [
+                            'true'  => '1',
+                            'false' => '0'
+                        ]
                     ]
                 ]
             ]
