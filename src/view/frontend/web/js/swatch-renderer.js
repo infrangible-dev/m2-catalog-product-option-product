@@ -43,6 +43,14 @@ define([
                                                if (swatchAttributeOption.length > 0) {
                                                    swatchAttributeOption.attr('selected', true);
                                                    swatchAttributeOption.trigger('change');
+                                               } else {
+                                                   swatchAttributeOption = productSwatches.find(
+                                                       '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[option-id=' + targetAttributeOptionId + ']');
+
+                                                   if (swatchAttributeOption.length > 0) {
+                                                       swatchAttributeOption.attr('selected', true);
+                                                       swatchAttributeOption.trigger('change');
+                                                   }
                                                }
                                            }
                                        });
