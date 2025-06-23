@@ -190,7 +190,8 @@ class Product extends AbstractOptions
                 'canDisplayShowOutOfStockStatus' => $options[ 'canDisplayShowOutOfStockStatus' ] ?? false,
                 'channel'                        => SalesChannelInterface::TYPE_WEBSITE,
                 'salesChannelCode'               => $this->storeHelper->getWebsite()->getCode(),
-                'sku'                            => $this->productHelper->getUsedProductsSkus($currentProduct)
+                'sku'                            => $this->productHelper->getUsedProductsSkus($currentProduct),
+                'optionAttributeMappings'        => $this->getOptionAttributeMappings()
             ];
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
@@ -445,5 +446,33 @@ class Product extends AbstractOptions
             'catalog/frontend/show_swatch_tooltip',
             true
         ) ? 1 : 0;
+    }
+
+    public function getOptionAttributeMappings(): array
+    {
+        $option = $this->getOption();
+
+        $mappings = [];
+
+        $attributeOptionMappingConfig = $option->getData('option_product_attribute_option_mapping');
+
+        if ($attributeOptionMappingConfig) {
+            $attributeOptionMappings = explode(
+                ',',
+                $attributeOptionMappingConfig
+            );
+
+            foreach ($attributeOptionMappings as $attributeOptionMapping) {
+                [$sourceAttributeId, $sourceAttributeOptionId, $targetAttributeId, $targetAttributeOptionId] = explode(
+                    ':',
+                    $attributeOptionMapping
+                );
+
+                $mappings[ $sourceAttributeId ][ $sourceAttributeOptionId ][ $targetAttributeId ][] =
+                    $targetAttributeOptionId;
+            }
+        }
+
+        return $mappings;
     }
 }

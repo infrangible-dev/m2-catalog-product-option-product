@@ -6,11 +6,55 @@
 
 define([
     'jquery',
+    'domReady',
     'Magento_Swatches/js/swatch-renderer'
-], function ($) {
+], function ($, domReady) {
     'use strict';
 
     $.widget('mage.productOptionSwatches', $.mage.SwatchRenderer, {
+        _init: function ($this, $widget) {
+            this._super($this, $widget);
+
+            var self = this;
+
+            domReady(function() {
+                var productSwatches = $(self.element);
+
+                $('.swatch-opt .swatch-input').on('change', function() {
+                    var selectedAttribute = $(this).parent();
+                    var attributeId = parseInt(selectedAttribute.data('attribute-id'));
+                    var attributeOptionId = parseInt(selectedAttribute.data('option-selected'));
+
+                    $.each(self.options.jsonConfig.optionAttributeMappings, function(sourceAttributeId, sourceAttributeOptionIds) {
+                       if (parseInt(sourceAttributeId) === attributeId) {
+                           $.each(sourceAttributeOptionIds, function(sourceAttributeOptionId, targetAttributeData) {
+                               if (parseInt(sourceAttributeOptionId) === attributeOptionId) {
+                                   $.each(targetAttributeData, function(targetAttributeId, targetAttributeOptionIds) {
+                                       $.each(targetAttributeOptionIds, function(key, targetAttributeOptionId) {
+                                           var swatchAttribute = productSwatches.find(
+                                               '#option-label-color-' + targetAttributeId + '-item-' + targetAttributeOptionId);
+
+                                           if (swatchAttribute.length > 0) {
+                                               swatchAttribute.click();
+                                           } else {
+                                               var swatchAttributeOption = productSwatches.find(
+                                                   '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[data-option-id=' + targetAttributeOptionId + ']');
+
+                                               if (swatchAttributeOption.length > 0) {
+                                                   swatchAttributeOption.attr('selected', true);
+                                                   swatchAttributeOption.trigger('change');
+                                               }
+                                           }
+                                       });
+                                   });
+                               }
+                           });
+                       }
+                    });
+                });
+            });
+        },
+
         _OnClick: function ($this, $widget) {
             this._super($this, $widget);
 
