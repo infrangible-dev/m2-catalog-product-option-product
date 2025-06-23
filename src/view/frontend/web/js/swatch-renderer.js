@@ -127,19 +127,26 @@ define([
                                     if (swatchAttribute.length > 0) {
                                         swatchAttribute.click();
                                     } else {
-                                        var swatchAttributeOption = productSwatches.find(
-                                            '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[data-option-id=' + targetAttributeOptionId + ']');
+                                        var swatchSelect = productSwatches.find(
+                                            '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select');
 
-                                        if (swatchAttributeOption.length > 0) {
-                                            swatchAttributeOption.attr('selected', true);
-                                            swatchAttributeOption.trigger('change');
-                                        } else {
-                                            swatchAttributeOption = productSwatches.find(
-                                                '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[option-id=' + targetAttributeOptionId + ']');
+                                        if (swatchSelect.length > 0) {
+                                            swatchSelect.find('option').removeAttr('selected');
+
+                                            var swatchAttributeOption = swatchSelect.find(
+                                                'option[data-option-id=' + targetAttributeOptionId + ']');
 
                                             if (swatchAttributeOption.length > 0) {
                                                 swatchAttributeOption.attr('selected', true);
                                                 swatchAttributeOption.trigger('change');
+                                            } else {
+                                                swatchAttributeOption = swatchSelect.find(
+                                                    'option[option-id=' + targetAttributeOptionId + ']');
+
+                                                if (swatchAttributeOption.length > 0) {
+                                                    swatchAttributeOption.attr('selected', true);
+                                                    swatchAttributeOption.trigger('change');
+                                                }
                                             }
                                         }
                                     }
