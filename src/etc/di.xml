@@ -20,4 +20,11 @@
     <type name="Magento\Catalog\Model\Product\Type\AbstractType">
         <plugin name="infrangible_catalogproductoptionproduct" type="Infrangible\CatalogProductOptionProduct\Plugin\Catalog\Model\Product\Type\AbstractType"/>
     </type>
+    <type name="Infrangible\CatalogProductOptionCode\Helper\Data">
+        <arguments>
+            <argument name="valueTypes" xsi:type="array">
+                <item name="product" xsi:type="string">product</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
