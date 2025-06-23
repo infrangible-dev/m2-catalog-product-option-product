@@ -32,7 +32,7 @@ define([
                                    $.each(targetAttributeData, function(targetAttributeId, targetAttributeOptionIds) {
                                        $.each(targetAttributeOptionIds, function(key, targetAttributeOptionId) {
                                            var swatchAttribute = productSwatches.find(
-                                               '#option-label-color-' + targetAttributeId + '-item-' + targetAttributeOptionId);
+                                               'div[data-attribute-id=' + targetAttributeId + '] div[data-option-id=' + targetAttributeOptionId + ']');
 
                                            if (swatchAttribute.length > 0) {
                                                swatchAttribute.click();
