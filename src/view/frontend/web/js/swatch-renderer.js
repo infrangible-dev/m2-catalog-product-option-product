@@ -108,8 +108,8 @@ define([
             var productSwatches = $(self.element);
 
             var selectedAttribute = swatchInput.parent();
-            var attributeId = parseInt(selectedAttribute.data('attribute-id'));
-            var attributeOptionId = parseInt(selectedAttribute.data('option-selected'));
+            var attributeId = parseInt(selectedAttribute.attr('data-attribute-id'));
+            var attributeOptionId = parseInt(selectedAttribute.attr('data-option-selected'));
 
             if (! attributeId || ! attributeOptionId) {
                 return;
