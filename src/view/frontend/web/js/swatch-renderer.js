@@ -18,47 +18,12 @@ define([
             var self = this;
 
             domReady(function() {
-                var productSwatches = $(self.element);
-
                 $('.swatch-opt .swatch-input').on('change', function() {
-                    var selectedAttribute = $(this).parent();
-                    var attributeId = parseInt(selectedAttribute.data('attribute-id'));
-                    var attributeOptionId = parseInt(selectedAttribute.data('option-selected'));
+                    self.processOptionAttributeMapping($(this));
+                });
 
-                    $.each(self.options.jsonConfig.optionAttributeMappings, function(sourceAttributeId, sourceAttributeOptionIds) {
-                       if (parseInt(sourceAttributeId) === attributeId) {
-                           $.each(sourceAttributeOptionIds, function(sourceAttributeOptionId, targetAttributeData) {
-                               if (parseInt(sourceAttributeOptionId) === attributeOptionId) {
-                                   $.each(targetAttributeData, function(targetAttributeId, targetAttributeOptionIds) {
-                                       $.each(targetAttributeOptionIds, function(key, targetAttributeOptionId) {
-                                           var swatchAttribute = productSwatches.find(
-                                               'div[data-attribute-id=' + targetAttributeId + '] div[data-option-id=' + targetAttributeOptionId + ']');
-
-                                           if (swatchAttribute.length > 0) {
-                                               swatchAttribute.click();
-                                           } else {
-                                               var swatchAttributeOption = productSwatches.find(
-                                                   '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[data-option-id=' + targetAttributeOptionId + ']');
-
-                                               if (swatchAttributeOption.length > 0) {
-                                                   swatchAttributeOption.attr('selected', true);
-                                                   swatchAttributeOption.trigger('change');
-                                               } else {
-                                                   swatchAttributeOption = productSwatches.find(
-                                                       '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[option-id=' + targetAttributeOptionId + ']');
-
-                                                   if (swatchAttributeOption.length > 0) {
-                                                       swatchAttributeOption.attr('selected', true);
-                                                       swatchAttributeOption.trigger('change');
-                                                   }
-                                               }
-                                           }
-                                       });
-                                   });
-                               }
-                           });
-                       }
-                    });
+                $('.swatch-opt .swatch-input').each(function() {
+                    self.processOptionAttributeMapping($(this));
                 });
             });
         },
@@ -135,6 +100,55 @@ define([
                 optionValue.prop('checked', !!productId);
                 optionValue.trigger('change');
             }
+        },
+
+        processOptionAttributeMapping: function(swatchInput) {
+            var self = this;
+
+            var productSwatches = $(self.element);
+
+            var selectedAttribute = swatchInput.parent();
+            var attributeId = parseInt(selectedAttribute.data('attribute-id'));
+            var attributeOptionId = parseInt(selectedAttribute.data('option-selected'));
+
+            if (! attributeId || ! attributeOptionId) {
+                return;
+            }
+
+            $.each(self.options.jsonConfig.optionAttributeMappings, function(sourceAttributeId, sourceAttributeOptionIds) {
+                if (parseInt(sourceAttributeId) === attributeId) {
+                    $.each(sourceAttributeOptionIds, function(sourceAttributeOptionId, targetAttributeData) {
+                        if (parseInt(sourceAttributeOptionId) === attributeOptionId) {
+                            $.each(targetAttributeData, function(targetAttributeId, targetAttributeOptionIds) {
+                                $.each(targetAttributeOptionIds, function(key, targetAttributeOptionId) {
+                                    var swatchAttribute = productSwatches.find(
+                                        'div[data-attribute-id=' + targetAttributeId + '] div[data-option-id=' + targetAttributeOptionId + ']');
+
+                                    if (swatchAttribute.length > 0) {
+                                        swatchAttribute.click();
+                                    } else {
+                                        var swatchAttributeOption = productSwatches.find(
+                                            '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[data-option-id=' + targetAttributeOptionId + ']');
+
+                                        if (swatchAttributeOption.length > 0) {
+                                            swatchAttributeOption.attr('selected', true);
+                                            swatchAttributeOption.trigger('change');
+                                        } else {
+                                            swatchAttributeOption = productSwatches.find(
+                                                '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select option[option-id=' + targetAttributeOptionId + ']');
+
+                                            if (swatchAttributeOption.length > 0) {
+                                                swatchAttributeOption.attr('selected', true);
+                                                swatchAttributeOption.trigger('change');
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            });
         }
     });
 
