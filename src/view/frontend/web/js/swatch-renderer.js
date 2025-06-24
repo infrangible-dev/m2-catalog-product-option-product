@@ -47,6 +47,10 @@ define([
                 var attributeAriaAttribute = attributeElement.find('div');
 
                 $(attributeAriaAttribute).attr('aria-required', false);
+
+                $(attributeAriaAttribute).find('div.swatch-option').each(function() {
+                    $(this).attr('title', $(this).data('option-label'));
+                });
             });
 
             container.find('select.catalog-product-option-product-attribute').parent().parent().find('.' + self.options.classes.attributeInput).on('change', function() {
