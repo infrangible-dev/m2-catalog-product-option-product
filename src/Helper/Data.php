@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Infrangible\CatalogProductOptionProduct\Helper;
 
+use FeWeDev\Base\Arrays;
 use FeWeDev\Base\Variables;
 use Infrangible\Core\Helper\Product;
 use Infrangible\Core\Helper\Stores;
 use Magento\Catalog\Model\Product\Option;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 /**
  * @author      Andreas Knollmann
@@ -25,14 +27,18 @@ class Data
     /** @var Product */
     protected $productHelper;
 
+    /** @var Arrays */
+    protected $arrays;
+
     /** @var \Magento\Catalog\Model\Product[] */
     private $products = [];
 
-    public function __construct(Variables $variables, Stores $storeHelper, Product $productHelper)
+    public function __construct(Variables $variables, Stores $storeHelper, Product $productHelper, Arrays $arrays)
     {
         $this->variables = $variables;
         $this->storeHelper = $storeHelper;
         $this->productHelper = $productHelper;
+        $this->arrays = $arrays;
     }
 
     /**
@@ -88,5 +94,42 @@ class Data
         }
 
         return $option->getData(Option::KEY_PRICE);
+    }
+
+    /**
+     * @param Option[] $options
+     */
+    public function prepareProductOptionsConfig(array $config, array $options): array
+    {
+        foreach ($options as $option) {
+            if ($option->getType() === 'product') {
+                $optionId = $option->getId();
+
+                $priceConfiguration = $this->arrays->getValue(
+                    $config,
+                    $optionId,
+                    []
+                );
+
+                try {
+                    $product = $this->getOptionProduct($option);
+
+                    unset($config[ $optionId ]);
+
+                    $config[ $optionId ][ $product->getId() ] = $priceConfiguration;
+
+                    if ($product->getTypeId() === Configurable::TYPE_CODE) {
+                        foreach ($this->productHelper->getUsedProductsPrices($product) as $usedProductId =>
+                            $usedProductsPrices) {
+
+                            $config[ $optionId ][ $usedProductId ][ 'prices' ] = $usedProductsPrices;
+                        }
+                    }
+                } catch (\Exception $exception) {
+                }
+            }
+        }
+
+        return $config;
     }
 }
