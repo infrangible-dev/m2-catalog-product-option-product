@@ -78,6 +78,14 @@ define([
 
                 select.addClass('catalog-product-option-product-attribute');
 
+                select.children().each(function() {
+                    var option = $(this);
+
+                    if (option.attr('data-option-id') === undefined) {
+                        option.attr('data-option-id', option.attr('option-id'));
+                    }
+                });
+
                 selectHtml = select[0].outerHTML;
             }
 
