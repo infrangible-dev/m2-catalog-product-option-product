@@ -53,7 +53,7 @@ define([
                 });
             });
 
-            this._EmulateSelected(self.options.jsonConfig.optionAttributePreselects);
+            this._EmulateSelectedByAttributeId(self.options.jsonConfig.optionAttributePreselects);
 
             container.find('select.catalog-product-option-product-attribute').parent().parent().find('.' + self.options.classes.attributeInput).on('change', function() {
                 self.updateSelection($(this));
