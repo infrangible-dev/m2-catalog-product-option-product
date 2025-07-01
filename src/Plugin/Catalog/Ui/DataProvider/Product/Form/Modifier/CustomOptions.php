@@ -25,6 +25,8 @@ class CustomOptions
 
     public const FIELD_OPTION_ATTRIBUTE_OPTION_MAPPING_NAME = 'option_product_attribute_option_mapping';
 
+    public const FIELD_OPTION_ATTRIBUTE_OPTION_PRESELECT_NAME = 'option_product_attribute_option_preselect';
+
     /** @var Arrays */
     protected $arrays;
 
@@ -110,6 +112,24 @@ class CustomOptions
                 static::FIELD_OPTION_ATTRIBUTE_OPTION_MAPPING_NAME
             ],
             $this->getAttributeOptionMappingFieldConfig(113)
+        );
+
+        $meta = $this->arrays->addDeepValue(
+            $meta,
+            [
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GROUP_CUSTOM_OPTIONS_NAME,
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::GRID_OPTIONS_NAME,
+                'children',
+                'record',
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_OPTION,
+                'children',
+                \Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions::CONTAINER_TYPE_STATIC_NAME,
+                'children',
+                static::FIELD_OPTION_ATTRIBUTE_OPTION_PRESELECT_NAME
+            ],
+            $this->getAttributeOptionPreselectFieldConfig(114)
         );
 
         return $this->arrays->addDeepValue(
@@ -212,6 +232,24 @@ class CustomOptions
                         'componentType' => Field::NAME,
                         'formElement'   => Input::NAME,
                         'dataScope'     => static::FIELD_OPTION_ATTRIBUTE_OPTION_MAPPING_NAME,
+                        'dataType'      => Text::NAME,
+                        'sortOrder'     => $sortOrder
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    protected function getAttributeOptionPreselectFieldConfig(int $sortOrder): array
+    {
+        return [
+            'arguments' => [
+                'data' => [
+                    'config' => [
+                        'label'         => __('Attribute Option Preselect'),
+                        'componentType' => Field::NAME,
+                        'formElement'   => Input::NAME,
+                        'dataScope'     => static::FIELD_OPTION_ATTRIBUTE_OPTION_PRESELECT_NAME,
                         'dataType'      => Text::NAME,
                         'sortOrder'     => $sortOrder
                     ]

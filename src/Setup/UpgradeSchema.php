@@ -97,6 +97,31 @@ class UpgradeSchema implements UpgradeSchemaInterface
             }
         }
 
+        if (version_compare(
+            $context->getVersion(),
+            '1.11.0',
+            '<'
+        )) {
+            $catalogProductOptionTableName = $setup->getTable('catalog_product_option');
+
+            if (! $connection->tableColumnExists(
+                $catalogProductOptionTableName,
+                'option_product_attribute_option_preselect'
+            )) {
+                $connection->addColumn(
+                    $catalogProductOptionTableName,
+                    'option_product_attribute_option_preselect',
+                    [
+                        'type'     => Table::TYPE_TEXT,
+                        'length'   => 1000,
+                        'nullable' => true,
+                        'unsigned' => false,
+                        'comment'  => 'Attribute Option Preselects'
+                    ]
+                );
+            }
+        }
+
         $setup->endSetup();
     }
 }

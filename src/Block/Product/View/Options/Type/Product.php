@@ -191,7 +191,8 @@ class Product extends AbstractOptions
                 'channel'                        => SalesChannelInterface::TYPE_WEBSITE,
                 'salesChannelCode'               => $this->storeHelper->getWebsite()->getCode(),
                 'sku'                            => $this->productHelper->getUsedProductsSkus($currentProduct),
-                'optionAttributeMappings'        => $this->getOptionAttributeMappings()
+                'optionAttributeMappings'        => $this->getOptionAttributeMappings(),
+                'optionAttributePreselects'      => $this->getOptionAttributePreselects()
             ];
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
@@ -474,5 +475,32 @@ class Product extends AbstractOptions
         }
 
         return $mappings;
+    }
+
+    public function getOptionAttributePreselects(): array
+    {
+        $option = $this->getOption();
+
+        $preselects = [];
+
+        $attributeOptionPreselectConfig = $option->getData('option_product_attribute_option_preselect');
+
+        if ($attributeOptionPreselectConfig) {
+            $attributeOptionPreselects = explode(
+                ',',
+                $attributeOptionPreselectConfig
+            );
+
+            foreach ($attributeOptionPreselects as $attributeOptionPreselect) {
+                [$attributeCode, $attributeOptionId] = explode(
+                    ':',
+                    $attributeOptionPreselect
+                );
+
+                $preselects[ $attributeCode ] = $attributeOptionId;
+            }
+        }
+
+        return $preselects;
     }
 }
