@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infrangible\CatalogProductOptionProduct\Observer;
 
+use FeWeDev\Base\Variables;
 use Infrangible\CatalogProductOptionProduct\Helper\Data;
 use Magento\Catalog\Model\Product;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
@@ -31,16 +32,21 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
     /** @var \Magento\Tax\Helper\Data */
     protected $taxHelper;
 
+    /** @var Variables */
+    protected $variables;
+
     public function __construct(
         Data $helper,
         \Infrangible\Core\Helper\Product $productHelper,
         ManagerInterface $eventManager,
-        \Magento\Tax\Helper\Data $taxHelper
+        \Magento\Tax\Helper\Data $taxHelper,
+        Variables $variables
     ) {
         $this->helper = $helper;
         $this->productHelper = $productHelper;
         $this->eventManager = $eventManager;
         $this->taxHelper = $taxHelper;
+        $this->variables = $variables;
     }
 
     /**
@@ -57,10 +63,10 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
 
         $optionIds = $product->getCustomOption('option_ids');
 
-        if ($optionIds) {
+        if ($optionIds && ! $this->variables->isEmpty($optionIds->getValue())) {
             foreach (explode(
                 ',',
-                $optionIds->getValue() ?? ''
+                $optionIds->getValue()
             ) as $optionId) {
                 $option = $product->getOptionById($optionId);
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Infrangible\CatalogProductOptionProduct\Block\Product\View\Options\Type;
 
 use FeWeDev\Base\Json;
+use FeWeDev\Base\Variables;
 use Infrangible\Core\Helper\Stores;
 use Magento\Catalog\Block\Product\View\Options\AbstractOptions;
 use Magento\Catalog\Model\Product\Image\UrlBuilder;
@@ -65,6 +66,9 @@ class Product extends AbstractOptions
     /** @var \Infrangible\Core\Helper\Product */
     protected $productHelper;
 
+    /** @var Variables */
+    protected $variables;
+
     public function __construct(
         Context $context,
         Data $pricingHelper,
@@ -80,6 +84,7 @@ class Product extends AbstractOptions
         Prices $variationPrices,
         UrlBuilder $urlBuilder,
         \Infrangible\Core\Helper\Product $productHelper,
+        Variables $variables,
         array $data = [],
         CalculateCustomOptionCatalogRule $calculateCustomOptionCatalogRule = null,
         CalculatorInterface $calculator = null,
@@ -106,6 +111,7 @@ class Product extends AbstractOptions
         $this->variationPrices = $variationPrices;
         $this->imageUrlBuilder = $urlBuilder;
         $this->productHelper = $productHelper;
+        $this->variables = $variables;
     }
 
     public function getPreconfiguredValue(Option $option)
@@ -479,9 +485,49 @@ class Product extends AbstractOptions
 
     public function getOptionAttributePreselects(): array
     {
+        $preselects = [];
+
         $option = $this->getOption();
 
-        $preselects = [];
+        $optionProduct = $this->getProduct();
+        $bundleOptionSelectionProduct = parent::getProduct();
+
+        $preConfiguredValues = $bundleOptionSelectionProduct->getPreconfiguredValues();
+
+        if ($preConfiguredValues) {
+            $options = $preConfiguredValues->getData('options');
+
+            if (is_array($options)) {
+                if (array_key_exists(
+                    $option->getId(),
+                    $options
+                )) {
+                    $selectedProductId = $options[ $option->getId() ];
+
+                    if ($selectedProductId) {
+                        try {
+                            $selectedProduct = $this->productHelper->loadProduct(
+                                $this->variables->intValue($selectedProductId),
+                                $this->storeHelper->getStoreId()
+                            );
+
+                            $allowAttributes = $this->configurableHelper->getAllowAttributes($optionProduct);
+
+                            foreach ($allowAttributes as $attribute) {
+                                $productAttribute = $attribute->getProductAttribute();
+                                $attributeId = $productAttribute->getId();
+                                $attributeOptionId = $selectedProduct->getData($productAttribute->getAttributeCode());
+
+                                $preselects[ $attributeId ] = $attributeOptionId;
+                            }
+
+                            return $preselects;
+                        } catch (\Exception $exception) {
+                        }
+                    }
+                }
+            }
+        }
 
         $attributeOptionPreselectConfig = $option->getData('option_product_attribute_option_preselect');
 
@@ -492,12 +538,12 @@ class Product extends AbstractOptions
             );
 
             foreach ($attributeOptionPreselects as $attributeOptionPreselect) {
-                [$attributeCode, $attributeOptionId] = explode(
+                [$attributeId, $attributeOptionId] = explode(
                     ':',
                     $attributeOptionPreselect
                 );
 
-                $preselects[ $attributeCode ] = $attributeOptionId;
+                $preselects[ $attributeId ] = $attributeOptionId;
             }
         }
 
