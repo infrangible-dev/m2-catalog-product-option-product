@@ -37,9 +37,15 @@ class CatalogProductOptionPriceConfigurationAfter implements ObserverInterface
 
         $config = $configObject->getData('config');
 
+        $options = $observer->getData('options');
+
+        if ($options === null) {
+            $options = $this->getOptions();
+        }
+
         $config = $this->helper->prepareProductOptionsConfig(
             $config,
-            $this->getOptions()
+            $options
         );
 
         $configObject->setData(
