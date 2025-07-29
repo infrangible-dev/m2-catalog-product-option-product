@@ -2,11 +2,14 @@
 
 <!--
  * @author      Andreas Knollmann
- * @copyright   Copyright (c) 2014-2025 Softwareentwicklung Andreas Knollmann
+ * @copyright   2014-2025 Softwareentwicklung Andreas Knollmann
  * @license     http://www.opensource.org/licenses/mit-license.php MIT
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="catalog_product_get_options_price">
         <observer name="infrangible_catalogproductoptionproduct" instance="Infrangible\CatalogProductOptionProduct\Observer\CatalogProductGetOptionsPrice"/>
+    </event>
+    <event name="order_item_option_price">
+        <observer name="infrangible_catalogproductoptionproduct" instance="Infrangible\CatalogProductOptionProduct\Observer\OrderItemOptionPrice"/>
     </event>
 </config>
