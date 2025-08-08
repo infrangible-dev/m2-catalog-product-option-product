@@ -139,7 +139,17 @@ define([
                                         'div[data-attribute-id=' + targetAttributeId + '] div[data-option-id=' + targetAttributeOptionId + ']');
 
                                     if (swatchAttribute.length > 0) {
-                                        swatchAttribute.click();
+                                        if (swatchAttribute.hasClass('disabled')) {
+                                            productSwatches.find('.swatch-option.selected').each(function() {
+                                                $(this).click();
+                                            });
+
+                                            if (! swatchAttribute.hasClass('disabled')) {
+                                                swatchAttribute.click();
+                                            }
+                                        } else if (! swatchAttribute.hasClass('selected')) {
+                                            swatchAttribute.click();
+                                        }
                                     } else {
                                         var swatchSelect = productSwatches.find(
                                             '.swatch-attribute[data-attribute-id=' + targetAttributeId + '] select.swatch-select');
