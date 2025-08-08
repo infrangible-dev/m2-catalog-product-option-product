@@ -144,6 +144,12 @@ define([
                                                 $(this).click();
                                             });
 
+                                            productSwatches.find('.swatch-attribute select').each(function() {
+                                                $(this).val('');
+                                                $(this).find('option[data-option-id="0"]').attr('selected', 'selected');
+                                                $(this).trigger('change');
+                                            });
+
                                             if (! swatchAttribute.hasClass('disabled')) {
                                                 swatchAttribute.click();
                                             }
@@ -161,8 +167,25 @@ define([
                                                 'option[data-option-id=' + targetAttributeOptionId + ']');
 
                                             if (swatchAttributeOption.length > 0) {
-                                                swatchAttributeOption.attr('selected', true);
-                                                swatchAttributeOption.trigger('change');
+                                                if (swatchAttributeOption.is(':disabled')) {
+                                                    productSwatches.find('.swatch-option.selected').each(function() {
+                                                        $(this).click();
+                                                    });
+
+                                                    productSwatches.find('.swatch-attribute select').each(function() {
+                                                        $(this).val('');
+                                                        $(this).find('option[data-option-id="0"]').attr('selected', 'selected');
+                                                        $(this).trigger('change');
+                                                    });
+
+                                                    if (! swatchAttributeOption.is(':disabled')) {
+                                                        swatchAttributeOption.attr('selected', true);
+                                                        swatchAttributeOption.trigger('change');
+                                                    }
+                                                } else {
+                                                    swatchAttributeOption.attr('selected', true);
+                                                    swatchAttributeOption.trigger('change');
+                                                }
                                             } else {
                                                 swatchAttributeOption = swatchSelect.find(
                                                     'option[option-id=' + targetAttributeOptionId + ']');
