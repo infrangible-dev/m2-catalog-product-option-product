@@ -65,6 +65,27 @@ class Product extends DefaultType
         return $this->helper->getOptionPrice($option);
     }
 
+    public function validateUserValue($values): Product
+    {
+        parent::validateUserValue($values);
+
+        $option = $this->getOption();
+
+        if (! $this->getDataUsingMethod('is_valid')) {
+            if (! array_key_exists(
+                $option->getId(),
+                $values
+            )) {
+                $this->setData(
+                    'is_valid',
+                    true
+                );
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * @throws LocalizedException
      */
