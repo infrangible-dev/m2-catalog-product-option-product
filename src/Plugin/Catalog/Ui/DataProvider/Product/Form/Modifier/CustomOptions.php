@@ -228,7 +228,7 @@ class CustomOptions
             'arguments' => [
                 'data' => [
                     'config' => [
-                        'label'         => __('Attribute Option Mapping'),
+                        'label'         => __('Attribute Option Mapping (srcAttrId:srcAttrOptionId:targetAttrId:targetAttrOptionId, ...)'),
                         'componentType' => Field::NAME,
                         'formElement'   => Input::NAME,
                         'dataScope'     => static::FIELD_OPTION_ATTRIBUTE_OPTION_MAPPING_NAME,
