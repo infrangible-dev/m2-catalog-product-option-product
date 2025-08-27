@@ -22,8 +22,8 @@ define([
                     self.processOptionAttributeMapping($(this));
                 });
 
-                $('.swatch-opt .swatch-input').each(function() {
-                    self.processOptionAttributeMapping($(this));
+                self.element.closest('.control').on('catalog-option-qty-init', function() {
+                    self.initAttributes(false);
                 });
             });
         },
@@ -53,11 +53,25 @@ define([
                 });
             });
 
-            this._EmulateSelectedByAttributeId(self.options.jsonConfig.optionAttributePreselects);
+            self.initAttributes(true);
 
             container.find('select.catalog-product-option-product-attribute').parent().parent().find('.' + self.options.classes.attributeInput).on('change', function() {
                 self.updateSelection($(this));
             });
+        },
+
+        initAttributes: function(isInit) {
+            var self = this;
+
+            if (! isInit || self.options.jsonConfig.initOptionAttributeMappings) {
+                self._EmulateSelectedByAttributeId(self.options.jsonConfig.optionAttributePreselects);
+            }
+
+            if (! isInit || self.options.jsonConfig.initOptionAttributePreselects) {
+                $('.swatch-opt .swatch-input').each(function () {
+                    self.processOptionAttributeMapping($(this));
+                });
+            }
         },
 
         _RenderFormInput: function($this, $widget) {

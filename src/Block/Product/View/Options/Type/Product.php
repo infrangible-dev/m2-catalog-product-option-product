@@ -14,6 +14,8 @@ use Magento\Catalog\Pricing\Price\CalculateCustomOptionCatalogRule;
 use Magento\ConfigurableProduct\Model\ConfigurableAttributeData;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable\Attribute;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable\Variations\Prices;
+use Magento\Framework\DataObject;
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Format;
@@ -69,6 +71,9 @@ class Product extends AbstractOptions
     /** @var Variables */
     protected $variables;
 
+    /** @var ManagerInterface */
+    protected $eventManager;
+
     public function __construct(
         Context $context,
         Data $pricingHelper,
@@ -85,6 +90,7 @@ class Product extends AbstractOptions
         UrlBuilder $urlBuilder,
         \Infrangible\Core\Helper\Product $productHelper,
         Variables $variables,
+        ManagerInterface $eventManager,
         array $data = [],
         CalculateCustomOptionCatalogRule $calculateCustomOptionCatalogRule = null,
         CalculatorInterface $calculator = null,
@@ -112,6 +118,7 @@ class Product extends AbstractOptions
         $this->imageUrlBuilder = $urlBuilder;
         $this->productHelper = $productHelper;
         $this->variables = $variables;
+        $this->eventManager = $eventManager;
     }
 
     public function getPreconfiguredValue(Option $option)
@@ -198,7 +205,9 @@ class Product extends AbstractOptions
                 'salesChannelCode'               => $this->storeHelper->getWebsite()->getCode(),
                 'sku'                            => $this->productHelper->getUsedProductsSkus($currentProduct),
                 'optionAttributeMappings'        => $this->getOptionAttributeMappings(),
-                'optionAttributePreselects'      => $this->getOptionAttributePreselects()
+                'initOptionAttributeMappings'    => $this->getInitOptionAttributeMappings(),
+                'optionAttributePreselects'      => $this->getOptionAttributePreselects(),
+                'initOptionAttributePreselects'  => $this->getInitOptionAttributePreselects()
             ];
         } catch (LocalizedException $exception) {
             $this->_logger->error($exception);
@@ -483,6 +492,26 @@ class Product extends AbstractOptions
         return $mappings;
     }
 
+    public function getInitOptionAttributeMappings(): bool
+    {
+        $innerTransportObject = new DataObject(
+            [
+                'product' => $this->getProduct(),
+                'option'  => $this->getOption(),
+                'result'  => true
+            ]
+        );
+
+        $this->eventManager->dispatch(
+            'catalog_product_option_product_init_attribute_mappings',
+            [
+                'data' => $innerTransportObject
+            ]
+        );
+
+        return $innerTransportObject->getData('result');
+    }
+
     public function getOptionAttributePreselects(): array
     {
         $preselects = [];
@@ -548,5 +577,25 @@ class Product extends AbstractOptions
         }
 
         return $preselects;
+    }
+
+    public function getInitOptionAttributePreselects(): bool
+    {
+        $innerTransportObject = new DataObject(
+            [
+                'product' => $this->getProduct(),
+                'option'  => $this->getOption(),
+                'result'  => true
+            ]
+        );
+
+        $this->eventManager->dispatch(
+            'catalog_product_option_product_init_attribute_preselects',
+            [
+                'data' => $innerTransportObject
+            ]
+        );
+
+        return $innerTransportObject->getData('result');
     }
 }
