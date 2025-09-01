@@ -567,10 +567,18 @@ class Product extends AbstractOptions
             );
 
             foreach ($attributeOptionPreselects as $attributeOptionPreselect) {
-                [$attributeId, $attributeOptionId] = explode(
-                    ':',
-                    $attributeOptionPreselect
-                );
+                if (str_contains(
+                    $attributeOptionPreselect,
+                    ':'
+                )) {
+                    [$attributeId, $attributeOptionId] = explode(
+                        ':',
+                        $attributeOptionPreselect
+                    );
+                } else {
+                    $attributeId = $attributeOptionPreselect;
+                    $attributeOptionId = 0;
+                }
 
                 $preselects[ $attributeId ] = $attributeOptionId;
             }

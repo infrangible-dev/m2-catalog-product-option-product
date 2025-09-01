@@ -19,7 +19,7 @@ define([
 
             domReady(function() {
                 $('.swatch-opt .swatch-input').on('change', function() {
-                    self.processOptionAttributeMapping($(this));
+                    self.processOptionAttributeMappings($(this));
                 });
 
                 self.element.closest('.control').on('catalog-option-qty-init', function() {
@@ -64,12 +64,12 @@ define([
             var self = this;
 
             if (! isInit || self.options.jsonConfig.initOptionAttributeMappings) {
-                self._EmulateSelectedByAttributeId(self.options.jsonConfig.optionAttributePreselects);
+                self.processOptionAttributePreselects();
             }
 
             if (! isInit || self.options.jsonConfig.initOptionAttributePreselects) {
                 $('.swatch-opt .swatch-input').each(function () {
-                    self.processOptionAttributeMapping($(this));
+                    self.processOptionAttributeMappings($(this));
                 });
             }
         },
@@ -130,7 +130,28 @@ define([
             }
         },
 
-        processOptionAttributeMapping: function(swatchInput) {
+        processOptionAttributePreselects: function() {
+            var self = this;
+
+            console.log(self.options.jsonConfig.optionAttributePreselects);
+            console.log(self.options.jsonConfig.attributes);
+            $.each(self.options.jsonConfig.optionAttributePreselects, function(attributeId, attributeOptionId) {
+                if (attributeOptionId === 0) {
+                    $.each(self.options.jsonConfig.attributes, function(key, attributeData) {
+                        if (attributeData.id === attributeId) {
+                            var firstAttributeOption = attributeData.options[0];
+
+                            self.options.jsonConfig.optionAttributePreselects[attributeId] = firstAttributeOption.id;
+                        }
+                    });
+                }
+            });
+            console.log(self.options.jsonConfig.optionAttributePreselects);
+
+            self._EmulateSelectedByAttributeId(self.options.jsonConfig.optionAttributePreselects);
+        },
+
+        processOptionAttributeMappings: function(swatchInput) {
             var self = this;
 
             var productSwatches = $(self.element);
@@ -195,6 +216,15 @@ define([
                                                     if (! swatchAttributeOption.is(':disabled')) {
                                                         swatchAttributeOption.attr('selected', true);
                                                         swatchAttributeOption.trigger('change');
+                                                    }
+
+                                                    var firstEnabledSwatchAttributeOption =
+                                                        productSwatches.find('.swatch-option:not([disabled="disabled"]):first');
+
+                                                    if (firstEnabledSwatchAttributeOption.length > 0) {
+                                                        firstEnabledSwatchAttributeOption.click();
+                                                        firstEnabledSwatchAttributeOption.attr('selected', true);
+                                                        firstEnabledSwatchAttributeOption.trigger('change');
                                                     }
                                                 } else {
                                                     swatchAttributeOption.attr('selected', true);
