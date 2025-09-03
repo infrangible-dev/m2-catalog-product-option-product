@@ -73,12 +73,15 @@ class Data
     /**
      * @throws \Exception
      */
-    public function getOptionPrice(Option $option, bool $inclTax = true): float
+    public function getOptionPrice(Option $option, bool $inclTax = true, $productId = null): float
     {
         if (! $option->getData(Option::KEY_PRICE) || ! $inclTax) {
             $optionPrice = 0;
-
-            $product = $this->getOptionProduct($option);
+            $storeId = $this->storeHelper->getStoreId();
+            $product = $productId ? $this->productHelper->loadProduct(
+                $productId,
+                $storeId
+            ) : $this->getOptionProduct($option);
 
             if ($product && $product->getId()) {
                 $optionPrice = $product->getPriceInfo()->getPrice('final_price')->getAmount()->getValue(

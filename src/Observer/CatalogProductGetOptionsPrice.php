@@ -71,9 +71,11 @@ class CatalogProductGetOptionsPrice implements ObserverInterface
                 $option = $product->getOptionById($optionId);
 
                 if ($option->getType() === 'product' && $option->getData('option_product_unattached')) {
+                    $childProductId=intval($product->getCustomOption('option_' . $option->getId())->getValue());
                     $price = $this->helper->getOptionPrice(
                         $option,
-                        $this->taxHelper->priceIncludesTax()
+                        $this->taxHelper->priceIncludesTax(),
+                        $childProductId
                     );
 
                     if ($product->getTypeId() === Configurable::TYPE_CODE) {
