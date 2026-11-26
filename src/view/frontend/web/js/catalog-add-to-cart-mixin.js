@@ -6,12 +6,12 @@
 
 define([
     'jquery'
-], function($) {
+], function ($) {
     'use strict';
 
     return function (widget) {
         return $.widget('mage.catalogAddToCart', widget, {
-            submitForm: function(form) {
+            submitForm: function (form) {
                 $('#product-options-wrapper .fieldset .field-wrapper .field input[name*="super_attribute"]').remove();
 
                 return this._super(form);

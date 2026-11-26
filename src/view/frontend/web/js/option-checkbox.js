@@ -10,11 +10,11 @@
  */
 define([
     'jquery'
-], function($) {
+], function ($) {
     'use strict';
 
-    return function(config, element) {
-        $(element).on('change', function() {
+    return function (config, element) {
+        $(element).on('change', function () {
             $(config.target).val($(this).is(':checked') ? $(this).val() : 0);
         });
     };

@@ -2,7 +2,7 @@
     "name": "infrangible/m2-catalog-product-option-product",
     "description": "New custom option type \"Product\": offer another catalog product, including configurable products with swatches, as a paid add-on on the product page.",
     "type": "magento2-module",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "license": "MIT",
     "keywords": [
         "Magento",
@@ -25,7 +25,7 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.1",
         "fewedev/base": "~2.4.3",
         "infrangible/m2-catalog-product-option-wrapper": "~2.0.1",
         "infrangible/m2-core": "~5.0.5",

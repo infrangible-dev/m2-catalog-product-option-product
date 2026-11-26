@@ -7,7 +7,7 @@
 const config = {
     map: {
         '*': {
-            productOptionSwatches: 'Infrangible_CatalogProductOptionProduct/js/swatch-renderer',
+            productOptionSwatches: 'Infrangible_CatalogProductOptionProduct/js/swatch-renderer'
         }
     },
     config: {
