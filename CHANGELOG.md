@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2
+
+### Changed
+
+- The product ID of product options is read with `getData('product_id')` instead of a magic method.
+
 ## 2.0.1
 
 ### Changed

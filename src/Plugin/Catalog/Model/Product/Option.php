@@ -59,6 +59,6 @@ class Option
      */
     private function isSavedProductOption(\Magento\Catalog\Model\Product\Option $option): bool
     {
-        return $this->helper->isProductOption($option) && $option->getProductId() && $option->getOptionId();
+        return $this->helper->isProductOption($option) && $option->getData('product_id') && $option->getOptionId();
     }
 }
